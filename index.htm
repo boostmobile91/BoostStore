@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Find Nearest Boost Store</title>
+<style>
+body{font-family:Arial,sans-serif;margin:40px;text-align:center}
+button{padding:15px 25px;font-size:18px;cursor:pointer}
+</style>
+</head>
+<body>
+<h2>Find My Nearest Boost Mobile Store</h2>
+<p>Click the button below and allow location access.</p>
+<button onclick="findNearest()">Find Nearest Store</button>
+
+<script>
+const stores = [
+{name:"South Holland",lat:41.6009,lng:-87.5847,address:"1025 E 162nd St, South Holland, IL 60473"},
+{name:"Chicago Heights",lat:41.5265,lng:-87.6356,address:"124 N Halsted St, Chicago Heights, IL 60411"},
+{name:"Lansing",lat:41.5648,lng:-87.5389,address:"2416 176th St, Lansing, IL 60438"},
+{name:"Joliet",lat:41.5250,lng:-88.0817,address:"1350 W Jefferson St, Joliet, IL 60435"},
+{name:"Bolingbrook",lat:41.6986,lng:-88.0684,address:"164 S Bolingbrook Dr, Bolingbrook, IL 60440"},
+{name:"Harvey",lat:41.6100,lng:-87.6467,address:"238 E 147th St, Harvey, IL 60426"}
+];
+
+function distance(lat1, lon1, lat2, lon2){
+ const R=6371;
+ const dLat=(lat2-lat1)*Math.PI/180;
+ const dLon=(lon2-lon1)*Math.PI/180;
+ const a=Math.sin(dLat/2)**2 +
+ Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+ Math.sin(dLon/2)**2;
+ return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function findNearest(){
+ navigator.geolocation.getCurrentPosition(pos=>{
+   const userLat=pos.coords.latitude;
+   const userLng=pos.coords.longitude;
+
+   let nearest=stores[0];
+   let min=distance(userLat,userLng,nearest.lat,nearest.lng);
+
+   stores.forEach(s=>{
+      const d=distance(userLat,userLng,s.lat,s.lng);
+      if(d<min){min=d;nearest=s;}
+   });
+
+   const url=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(nearest.address)}`;
+   window.location.href=url;
+ },err=>alert("Location access is required."));
+}
+</script>
+</body>
+</html>
